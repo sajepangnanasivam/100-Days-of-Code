@@ -10,17 +10,20 @@ def guess_the_number(easy_or_hard):
   """The game start"""
   # Or random_number = randint(1, 100)
   random_number = random.choice(range(1, 101))
-  print(random_number)
+  #print(random_number)
   continue_game = True
   attempts = easy_or_hard
 
   while continue_game:
-    print(f"You have {attempts} attempts left.")
-    guess = int(input("Make a guess: "))
     if attempts == 0:
       continue_game = False
       print(f"\n❌ You lost, The number is {random_number}\n")
-    elif guess > random_number:
+      return
+    
+    print(f"You have {attempts} attempts.")
+    guess = int(input("Make a guess: "))
+
+    if guess > random_number:
       attempts -= 1
       print("\n⬆️ \tToo High.")
     elif guess < random_number:
@@ -32,14 +35,15 @@ def guess_the_number(easy_or_hard):
       
 
 def initiate_game_with_difficulty():
-  """To choose difficulty for the game, and start game by calling main game functio"""
+  """To choose difficulty for the game, and start game by calling main game function"""
   difficulty = input("❓ \tChoose a difficulty. Type 'Easy' or 'Hard': ").lower()
+  easy, hard = 10, 5
   if difficulty == "easy":
     print("\n👶 \tEasy Difficulty \t👶")
-    guess_the_number(10)
+    guess_the_number(easy)
   else:
     print("\n⚔️ \tHard Difficulty\t ⚔️")
-    guess_the_number(5)
+    guess_the_number(hard)
 
 while input("❓ \tDo you want to play? Type 'y' or 'n': ").lower() == "y":
   clear()
