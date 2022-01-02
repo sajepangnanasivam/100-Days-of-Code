@@ -1,12 +1,6 @@
 from Menu import *
 
 
-# TODO: Prompt user by asking “What would you like? (espresso/latte/cappuccino):”
-# TODO: Currency conversion.
-# TODO: Report() function for reporting remaining resources.
-# TODO: function to check for enough resources. give appropriate message.
-# TODO: IF there is enough resources for selected drink, prompt the user to insert coins.
-
 def check_resources(drink):
     """
     Checks whether there is sufficient amount of resources.
@@ -18,25 +12,28 @@ def check_resources(drink):
 
     chosen_drink = MENU[drink]
 
-    if chosen_drink["ingredients"]["water"] > water:
+    coffee_in_ingredients = "coffee" in MENU[drink]["ingredients"]
+    milk_in_ingredients = "milk" in MENU[drink]["ingredients"]
+    water_in_ingredients = "milk" in MENU[drink]["ingredients"]
+
+    if water_in_ingredients and chosen_drink["ingredients"]["water"] > water:
         enough_resources = False
         print("Sorry, there is not enough Water..")
         return enough_resources
-    elif chosen_drink["ingredients"]["coffee"] > coffee:
+    if coffee_in_ingredients and (chosen_drink["ingredients"]["coffee"] > coffee):
         enough_resources = False
         print("Sorry, there is not enough Coffee..")
         return enough_resources
-    # TODO: Espresso does not contain Milk in the recipe. Need to adress the error handling.
-    # elif chosen_drink["ingredients"]["milk"] > milk:
-    #    enough_resources = False
-    #    return "Sorry, there is not enough Milk."
+    if milk_in_ingredients and (chosen_drink["ingredients"]["milk"] > milk):
+        print("Sorry, there is not enough Milk..")
+        return enough_resources
 
     return enough_resources
 
 
-def payment():
+def make_payment():
     """
-    Function for making payment.
+    For making the payment.
     """
     print("💰 Please insert Coins: ")
     # quarters = $0.25, dimes = $0.10, nickles = $0.05, pennies = $0.01
@@ -66,37 +63,72 @@ def check_payment(drink, customer_pay):
         print(f"Thank you for your purchase, here is your refund of ${refund}")
     return enough_money
 
+
 def make_coffee(drink):
     # Chosen Drink
     chosen_drink = MENU[drink]
-    current_drink_water = chosen_drink["ingredients"]["water"]
-    #current_drink_milk = chosen_drink["ingredients"]["milk"]
-    current_drink_coffee = chosen_drink["ingredients"]["coffee"]
 
-    # Machine Resources
-    machine_water = resources["water"]
-    #machine_milk = resources["milk"]
-    machine_coffee = resources["coffee"]
+    # Creating an instance of the machine resources.
+    remaining_coffee = resources["coffee"]
+    remaining_water = resources["water"]
+    remaining_milk = resources["milk"]
+    # Checking if the ingredients are in the drink's ingerdient list.
+    if "milk" in MENU[drink]["ingredients"]:
+        resources["milk"] -= chosen_drink["ingredients"]["milk"]
+        remaining_milk = resources["milk"]
+    if "coffee" in MENU[drink]["ingredients"]:
+        resources["coffee"] -= chosen_drink["ingredients"]["coffee"]
+        remaining_coffee = resources["coffee"]
+    if "water" in MENU[drink]["ingredients"]:
+        resources["water"] -= chosen_drink["ingredients"]["water"]
+        remaining_water = resources["water"]
 
-    # Subtracting the machine resources and updating dictionary.
-    machine_water -= current_drink_water
-    machine_coffee -= current_drink_coffee
-    #machine_milk -= current_drink_milk
-    print(f"\nRemaining water: {machine_water}\nRemaining coffee: {machine_coffee}")
+    return remaining_water, remaining_coffee, remaining_milk
 
 
-# Program execution
+def report(money_in_machine):
+    """
+    To print out a report when the customer types in "report".
+    Shows remaining water, milk, coffee, and the total bill.
+    """
+    remaining_coffee = resources["coffee"]
+    remaining_water = resources["water"]
+    remaining_milk = resources["milk"]
+    print(
+        f"\n💧 Remaining water: \t{remaining_water}ml\n💧 Remaining milk: \t\t{remaining_milk}ml\n☕ Remaining coffee: \t{remaining_coffee}g\n💲 Money: {money_in_machine}")
+
+
+def calculate_bill(drink, money_in_machine):
+    money_in_machine += MENU[drink]["cost"]
+    return money_in_machine
+
+
+## --------------------------------- ##
+## ------- Program execution ------- ##
+## --------------------------------- ##
 continue_coffee_machine = True
+money_in_machine = 0
 while continue_coffee_machine:
-    drink = input("What would you like? (espresso/latte/cappuccino):\t").lower()
-    enough_resources = check_resources(drink)
-    # if there is not enough resources, stop the program. Continue else.
-    if not enough_resources:
+    drink = input("\nWhat would you like? (espresso/latte/cappuccino):\t").lower()
+    if drink == "off":
+        print("\n🛠 Machine turning off.. Ready for maintenance.")
         continue_coffee_machine = False
-    else:
-        customer_pay = payment()
-        enough_money = check_payment(drink, customer_pay)
-        if not enough_money:
+    elif drink == "report":
+        report(money_in_machine)
+    # if there is not enough resources, stop the program. Continue else.
+    elif drink in ["espresso", "latte", "cappuccino"]:
+        enough_resources = check_resources(drink)
+        if not enough_resources:
             continue_coffee_machine = False
         else:
-            make_coffee(drink)
+            # Everytime a user purchases a drink, the cost will be added to the bill.
+            money_in_machine = calculate_bill(drink, money_in_machine)
+            # Showing the customer what the cost for the drink is.
+            cost = MENU[drink]["cost"]
+            print(f"\nThe cost for {drink} is ${cost}")
+            customer_pay = make_payment()
+            enough_money = check_payment(drink, customer_pay)
+            if not enough_money:
+                continue_coffee_machine = False
+            else:
+                make_coffee(drink)
