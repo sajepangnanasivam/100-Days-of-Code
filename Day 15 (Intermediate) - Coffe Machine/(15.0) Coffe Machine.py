@@ -5,30 +5,13 @@ def check_resources(drink):
     """
     Checks whether there is sufficient amount of resources.
     """
-    enough_resources = True
-    water = resources["water"]
-    milk = resources["milk"]
-    coffee = resources["coffee"]
-
     chosen_drink = MENU[drink]
 
-    coffee_in_ingredients = "coffee" in MENU[drink]["ingredients"]
-    milk_in_ingredients = "milk" in MENU[drink]["ingredients"]
-    water_in_ingredients = "milk" in MENU[drink]["ingredients"]
-
-    if water_in_ingredients and chosen_drink["ingredients"]["water"] > water:
-        enough_resources = False
-        print("Sorry, there is not enough Water..")
-        return enough_resources
-    if coffee_in_ingredients and (chosen_drink["ingredients"]["coffee"] > coffee):
-        enough_resources = False
-        print("Sorry, there is not enough Coffee..")
-        return enough_resources
-    if milk_in_ingredients and (chosen_drink["ingredients"]["milk"] > milk):
-        print("Sorry, there is not enough Milk..")
-        return enough_resources
-
-    return enough_resources
+    for item in chosen_drink["ingredients"]:
+        if chosen_drink["ingredients"][item] > resources[item]:
+            print(f"\n❌ Sorry there is not enough {item}.")
+            return False
+    return True
 
 
 def make_payment():
@@ -73,15 +56,15 @@ def make_coffee(drink):
     remaining_water = resources["water"]
     remaining_milk = resources["milk"]
     # Checking if the ingredients are in the drink's ingerdient list.
-    if "milk" in MENU[drink]["ingredients"]:
-        resources["milk"] -= chosen_drink["ingredients"]["milk"]
-        remaining_milk = resources["milk"]
-    if "coffee" in MENU[drink]["ingredients"]:
-        resources["coffee"] -= chosen_drink["ingredients"]["coffee"]
-        remaining_coffee = resources["coffee"]
-    if "water" in MENU[drink]["ingredients"]:
-        resources["water"] -= chosen_drink["ingredients"]["water"]
-        remaining_water = resources["water"]
+    for item in chosen_drink["ingredients"]:
+        if item in chosen_drink["ingredients"]:
+            resources[item] -= chosen_drink["ingredients"][item]
+            if item == "milk":
+                remaining_milk = resources[item]
+            if item == "water":
+                remaining_water = resources[item]
+            if item == "coffee":
+                remaining_coffee = resources[item]
 
     return remaining_water, remaining_coffee, remaining_milk
 
@@ -95,7 +78,7 @@ def report(money_in_machine):
     remaining_water = resources["water"]
     remaining_milk = resources["milk"]
     print(
-        f"\n💧 Remaining water: \t{remaining_water}ml\n💧 Remaining milk: \t\t{remaining_milk}ml\n☕ Remaining coffee: \t{remaining_coffee}g\n💲 Money: {money_in_machine}")
+        f"\n💧 Water: \t{remaining_water}ml\n💧 Milk: \t{remaining_milk}ml\n☕ Coffee: \t{remaining_coffee}g\n💲 Money: \t{money_in_machine}")
 
 
 def calculate_bill(drink, money_in_machine):
