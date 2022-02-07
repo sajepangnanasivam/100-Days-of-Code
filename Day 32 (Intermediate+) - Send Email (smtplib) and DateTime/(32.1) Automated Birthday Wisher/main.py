@@ -6,7 +6,7 @@ from random import randint
 import smtplib
 
 MY_EMAIL = "sajepan.dev@gmail.com"
-MY_PASSWORD = "SajeeSobi271018"
+MY_PASSWORD = "-Password-"
 
 # TODO: 1. Create a tuple from today's date with datetime
 today = datetime.now()
